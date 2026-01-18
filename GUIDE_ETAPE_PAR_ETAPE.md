@@ -246,52 +246,62 @@ Faite un push sur la branche `main` et le pipeline CI/CD sera lancé automatique
 
 ## Etape 13 : Vérifier le résultat du pipeline CI/CD
 
-# Suite
+# Deployment
 
-## Etape 1: ajout d'un paramètre à la route /health
+## Etape 1: Création du compte Render
 
-Modifiez le code de l'API pour ajouter un paramètre à la route /health qui pemet d'authentifier l'utilisateur.
+Créez un compte sur https://render.com/.
 
-```javascript
-// Ajoute un paramètre à la route /health qui permet d'authentifier l'utilisateur
-router.get('/health', (req, res) => {
-  const { token } = req.query
-  if (token !== '1234567890') {
-    res.status(401).json({ status: 'error', message: 'Unauthorized' })
-  }
-  res.json({ status: 'ok' })
-})
-```
+## Etape 2: Création du projet Render
 
-Faite un push sur la branche `main` et le pipeline CI/CD sera lancé automatiquement.
+Créez un projet Web Services sur Render.
 
-## Etape 2: On passe par une variable d'environnement pour l'authentification
+## Etape 3: Ajout le deploy dans le pipeline CI/CD
 
-Modifiez le code de l'API pour passer par une variable d'environnement pour l'authentification.
-
-```javascript
-// Ajoute un paramètre à la route /health qui permet d'authentifier l'utilisateur
-router.get('/health', (req, res) => {
-  const { token } = req.query
-  if (token !== process.env.TOKEN) {
-    res.status(401).json({ status: 'error', message: 'Unauthorized' })
-  }
-  res.json({ status: 'ok' })
-})
-```
-
-Faite un push sur la branche `main` et le pipeline CI/CD sera lancé automatiquement.
-
-## Etape 3: Modifier le pipeline CI/CD pour prendre en compte les variables d'environnement
-
-Modifiez le pipeline CI/CD pour prendre en compte les variables d'environnement.
+Modifiez le pipeline CI/CD pour ajouter le deploy dans le pipeline CI/CD.
 
 ```yaml
 jobs:
-  build:
+  # [Code build]
+
+  deploy:
+    needs: build # S'exécute seulement si build réussit
     runs-on: ubuntu-latest
-    env:
-      TOKEN: 'brybry'
+    if: github.ref == 'refs/heads/main' # Seulement sur main
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Deploy to Render
+        uses: johnbeynon/render-deploy-action@v0.0.8
+        with:
+          service-id: srv-d5mkadhr0fns73f23bm0
+          api-key: 'rnd_SdftNu7TwBa937qGItyAtIKkiRFe'
 ```
 
-Faite un push sur la branche `main` et le pipeline CI/CD sera lancé automatiquement.
+## Etape 4 : utilisation des variables d'envrionnement sur GitHub
+
+Modifiez le pipeline CI/CD pour utiliser les variables d'environnement sur GitHub.
+
+```yaml
+with:
+  service-id: srv-d5mkadhr0fns73f23bm0
+  api-key: 'rnd_SdftNu7TwBa937qGItyAtIKkiRFe'
+```
+
+Doit devenir :
+
+```yaml
+with:
+  service-id: ${{ secrets.RENDER_SERVICE_ID }}
+  api-key: ${{ secrets.RENDER_API_KEY }}
+```
+
+## Etape 5 : Ajout des variables d'environnement sur GitHub
+
+Ajoutez les variables d'environnement sur GitHub.
+
+```yaml
+secrets:
+  RENDER_SERVICE_ID: srv-d5mkadhr0fns73f23bm0
+  RENDER_API_KEY: 'rnd_SdftNu7TwBa937qGItyAtIKkiRFe'
+```
