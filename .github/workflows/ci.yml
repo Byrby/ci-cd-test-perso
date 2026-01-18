@@ -18,3 +18,16 @@ jobs:
       - run: npm ci # On peut utiliser npm install mais c'est moins propre
       - run: npm run lint
       - run: npm test
+      
+  deploy:
+    needs: build # S'exécute seulement si build réussit
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' # Seulement sur main
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Deploy to Render
+        uses: johnbeynon/render-deploy-action@v0.0.8
+        with:
+          service-id: srv-d5mkadhr0fns73f23bm0
+          api-key: "rnd_SdftNu7TwBa937qGItyAtIKkiRFe"
