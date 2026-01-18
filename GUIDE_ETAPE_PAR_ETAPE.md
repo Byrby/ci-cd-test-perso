@@ -302,6 +302,10 @@ Ajoutez les variables d'environnement sur GitHub.
 
 ```yaml
 secrets:
-  RENDER_SERVICE_ID: srv-d5mkadhr0fns73f23bm0
-  RENDER_API_KEY: 'rnd_SdftNu7TwBa937qGItyAtIKkiRFe'
+  RENDER_SERVICE_ID: ...
+  RENDER_API_KEY: ...
 ```
+
+## Etape 6 : Vérifier le déploiement
+
+Vous pouvez vérifier le déploiement en allant sur le site de Render et en vérifiant que le service est déployé.
